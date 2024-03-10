@@ -1,7 +1,7 @@
 package users;
 
 import books.Book;
-import library.Library;
+import library.Books;
 
 import java.util.ArrayList;
 
@@ -12,12 +12,12 @@ public class User {
     private int donates = 0;
     private int borrow = 0;
     private int borrowLimit = 3;
-    private Library library;
+    private Books library;
     private ArrayList<Book> bookBorrow = new ArrayList<>();
     public void borrowBooks(String title, String author, String gender, String foreword, int number) {
         bookBorrow.add(new Book(title, author, gender, foreword, number));
     }
-    public User(String name, String address, int number, Library library) {
+    public User(String name, String address, int number, Books library) {
         this.name = name;
         this.address = address;
         this.number = number;
@@ -35,15 +35,12 @@ public class User {
     public int getBorrowLimit() {
         return borrowLimit;
     }
-
     public int getBorrow() {
         return borrow;
     }
-
     public void setBorrow(int borrow) {
         this.borrow = borrow;
     }
-
     public void setBorrowLimit(int borrowLimit) {
         this.borrowLimit = borrowLimit;
     }
@@ -59,5 +56,7 @@ public class User {
             throw new RuntimeException("System: " + title + ", this book is not with the user: " + name);
         }
     }
-
+    public int getNumber() {
+        return number;
+    }
 }

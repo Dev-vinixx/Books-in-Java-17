@@ -8,19 +8,29 @@ import java.util.Iterator;
 import java.util.Objects;
 import java.util.Random;
 
-public class Library {
+public class Books {
     private final ArrayList<Book> book = new ArrayList<>();
     private final ArrayList<User> user = new ArrayList<>();
-    public void createNewUser(String name, String address) {
+    public User createNewUser(String name, String address) {
         if (Objects.equals(name, "") || Objects.equals(address, "")) {
             throw new RuntimeException("System: " + "No value can be null");
         } else {
-            user.add(new User(verifyName(name), address, generateNumber(), this));
+            User newUser = new User(verifyName(name),address,generateNumber(),this);
+            user.add(newUser);
+            return newUser;
         }
     }
     public int generateNumber() {
         Random rand = new Random();
-        return rand.nextInt(900000) + 100000;
+        int randomNumber = rand.nextInt(900000) + 100000;
+        for (User user : user) {
+            if (user.getNumber() != randomNumber) {
+                return randomNumber;
+            } else {
+                return generateNumber();
+            }
+        }
+        return randomNumber;
     }
     public String verifyName(String value) {
 
@@ -77,36 +87,58 @@ public class Library {
     public void bookComeBack( String title, String author, String gender, String foreword, int number) {
         book.add(new Book(title, author, gender, foreword, number));
     }
-    public void borrow(String name, String title) {
+    public boolean borrowSuccessful(String name, String title, int uniqueCode) {
         if (Objects.equals(name, "") || Objects.equals(title, "")) {
             throw new RuntimeException("System: " + "No value can be null");
         } else {
-            boolean pass = false;
             int check = 1;
             for (User user : user) {
                 if (user.getName().equals(name)) {
                     check = 2;
-                    if (user.getBorrow() >= 3) {
-                        throw new RuntimeException("System: You've reached the maximum number of books you've borrowed, return one before you pick up another");
-                    }
-                    Iterator<Book> iterator = this.book.iterator();
-                    while (iterator.hasNext()) {
-                        Book book = iterator.next();
-                        if (book.getTitle().equals(title)) {
-                            pass = true;
-                            user.borrowBooks(title, book.getAuthor(), book.getGender(), book.getForeword(), book.getNumber());
-                            iterator.remove();
-                            System.out.println("System: " + name + ", you successfully borrowed the book: " + title);
-                            break;
+                    if (user.getNumber() == uniqueCode) {
+                        check = 3;
+                        if (user.getBorrow() >= 3) {
+                            throw new RuntimeException("System: You've reached the maximum number of books you've borrowed, return one before you pick up another");
+                        }
+                        Iterator<Book> iterator = this.book.iterator();
+                        while (iterator.hasNext()) {
+                            Book book = iterator.next();
+                            if (book.getTitle().equals(title)) {
+                                user.borrowBooks(title, book.getAuthor(), book.getGender(), book.getForeword(), book.getNumber());
+                                iterator.remove();
+                                return true;
+                            }
                         }
                     }
                 }
             }
-            if (!pass && check == 1) {
+            if (check == 1) {
                 throw new RuntimeException("System: " + "Unregistered user");
-            } else if (!pass && check == 2) {
+            } else if (check == 2) {
+                throw new RuntimeException("System: " + "The unique code does not correspond to that account.");
+            } else if (check == 3) {
                 throw new RuntimeException("System: " + title + " with the title not found");
             }
+        }
+        return false;
+    }
+    public ArrayList<String> getBooks() {
+        ArrayList<String> titles = new ArrayList<>();
+        for (Book book : book ) {
+            titles.add(book.getTitle());
+        }
+        return titles;
+    }
+    public Book getAllBook(String title) {
+        if (Objects.equals(title, "")) {
+            throw new RuntimeException("System: " + "No value can be null");
+        } else {
+            for (Book book : book) {
+                if(book.getTitle().equals(title)) {
+                    return book;
+                }
+            }
+            throw new RuntimeException("System: " + "The book with the title " + title + " was not found");
         }
     }
 }
